@@ -3,13 +3,17 @@ from multiprocessing import Queue
 import time
 
 server_address = ('127.0.0.1', 8989)
+Q = Queue()  # Global queue for messages
+QSIZE = 500 # things to hold in queue
 
-Q = Queue()
 def log(data, filename='plogfile.log'):
+    """
+    Write data to a file.
+    """
     Q.put(str(data))
-    if Q.qsize() > 500:
+    if Q.qsize() > QSIZE:
         data = []
-        for i in range(500):
+        for i in range(QSIZE):
             try:
                 i = Q.get(block=False)
                 data.append(i)
@@ -20,11 +24,16 @@ def log(data, filename='plogfile.log'):
 
 
 def listen(filename):
+    """
+    Listen for incoming data
+    """
+    global server_address, QSIZE
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('starting up on %s port %s' % server_address)
+    print('Buffer size of messages: {}'.format(QSIZE))
 
     sock.bind(server_address)
-    sock.listen(500)
+    sock.listen(QSIZE)
     count = 0
 
     last_print = time.time()
@@ -53,6 +62,10 @@ def listen(filename):
             
 
 def addlog(data):
+    """
+    Send data to logging service
+    """
+    assert isinstance(data, str)
     # TODO: add something to handle `unable to assign port`
     with socket.create_connection(server_address) as sock:
         sock.sendall(data.encode())
