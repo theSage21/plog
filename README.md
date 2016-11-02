@@ -17,7 +17,7 @@ the `addlog` function from `plog.py` to add a log.
 
 For example a sample `supplier` program may do this:
 
-```
+```python
 from plog import addlog
 from multiprocessing import Pool
 
